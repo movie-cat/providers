@@ -11,8 +11,9 @@
     | Source        | Status        |
     | ------------- |:-------------:|
     | Flixhq        | ❌            |
-- **Extractors**
+  
+- **Providers**
 
-    | Extractor     | Status        |
+    | Provider     | Status        |
     | ------------- |:-------------:|
     | Rabbitstream  | ✅            |
