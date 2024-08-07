@@ -2,7 +2,7 @@ import re
 import hashlib
 from pathlib import Path
 from typing import Optional, Union, List, Dict
-from providers.types import ProviderHeaders, Stream
+from mcat_providers.providers.types import ProviderHeaders, Stream
 
 class Provider:
     URL_PATTERN = re.compile(r"^(https:\/\/.+)$")

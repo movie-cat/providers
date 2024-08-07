@@ -11,11 +11,11 @@ from Cryptodome.Util.Padding import unpad
 from typing import Optional, Dict, List
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, RetryError
 
-from providers import Provider
-from providers.types import ProviderHeaders, ProviderResponse, Subtitle
+from mcat_providers.providers import Provider
+from mcat_providers.providers.types import ProviderHeaders, ProviderResponse, Subtitle
 
-from utils.exceptions import IntegrityError
-from utils.decorators import async_lru_cache, async_lru_cache_parameterless
+from mcat_providers.utils.exceptions import IntegrityError
+from mcat_providers.utils.decorators import async_lru_cache, async_lru_cache_parameterless
 
 class Rabbitstream(Provider):
     __meta__ = {
