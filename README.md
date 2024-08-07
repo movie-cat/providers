@@ -15,4 +15,4 @@
 
     | Extractor     | Status        |
     | ------------- |:-------------:|
-    | Rabbitstream  | ❌            |
+    | Rabbitstream  | ✅            |
