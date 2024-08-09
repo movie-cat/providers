@@ -19,7 +19,7 @@ class Provider:
         return working_dir if working_dir.is_dir() else working_dir.parent
 
     @staticmethod
-    def calculate_md5(input_bytes: bytes, _mode: str = "digest") -> bytes:
+    def calculate_md5(input_bytes: bytes, _mode: str = "digest") -> Union[bytes, str]:
         md5 = hashlib.md5(input_bytes)
         if _mode == "digest":
             return md5.digest()
@@ -41,7 +41,7 @@ class Provider:
             print("No m3u8 data!")
             raise ValueError("No m3u8 data!")
         expect_url = False
-        parsed_data: Dict[str, str] = {
+        parsed_data = {
             "provider": cls.__name__,
             "headers": headers,
             "ext": ".m3u8"
@@ -53,7 +53,7 @@ class Provider:
                     continue
                 parsed_data.update({"url": url_match.group(1)})
                 m3u8_data_parsed.append(Stream(**parsed_data))
-                parsed_data: Dict[str, str] = {
+                parsed_data = {
                     "provider": cls.__name__,
                     "headers": headers,
                     "ext": ".m3u8"
@@ -72,7 +72,11 @@ class Provider:
                 data.update({"url": url})
                 parsed_data.update(data)
                 m3u8_data_parsed.append(Stream(**parsed_data))
-                parsed_data: Dict[str, str] = {"ext": ".m3u8"}
+                parsed_data = {
+                    "provider": cls.__name__,
+                    "headers": headers,
+                    "ext": ".m3u8"
+                }
                 continue
             if data:
                 expect_url = True
