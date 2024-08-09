@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import re
 from enum import Enum
+from mcat_providers import default_ua
 from typing import Optional, Union, List, Dict
 
-class Quality(Enum):
+# Enums
+class QualityEnum(Enum):
     P_144 = "144p"
     P_240 = "240p"
     P_360 = "360p"
@@ -24,7 +26,7 @@ class Quality(Enum):
         return quality_str
 
     @classmethod
-    def map_quality(cls, quality: str) -> Quality:
+    def map_enum(cls, quality: str) -> QualityEnum:
         quality = cls.process_quality_str(quality)
         if quality in ["7680x4320", "4320p", "8k"]:
             return cls.P_4320
@@ -48,6 +50,57 @@ class Quality(Enum):
             print(f"Unknown quality: {quality}")
             return cls.UNKNOWN
 
+class MediaEnum(Enum):
+    MOVIE = "Movie"
+    SERIES = "Series"
+    ANIME = "Anime"
+    UNKNOWN = "UNKNOWN"
+
+    @staticmethod
+    def process_media_type(media_type: str) -> str:
+        media_type = media_type.lower()
+        return media_type.strip()
+
+    @classmethod
+    def map_enum(cls, meda_type: str) -> MediaEnum:
+        meda_type = cls.process_media_type(meda_type)
+        if any(keyword in meda_type for keyword in ["movie"]):
+            return cls.MOVIE
+        if any(keyword in meda_type for keyword in ["tv", "series"]):
+            return cls.SERIES
+        if any(keyword in meda_type for keyword in ["anime"]):
+            return cls.ANIME
+        return cls.UNKNOWN
+
+    @property
+    def gmid_key(self) -> Optional[str]:
+        if self == MediaEnum.MOVIE:
+            return "M"
+        elif self == MediaEnum.SERIES:
+            return "S"
+        return None
+
+# Types
+class MediaType:
+    def __init__(
+        self,
+        tmdb: Union[str, int],
+        media_type: Union[str, MediaEnum],
+        season: Union[str, int] = "0",
+        episode: Union[str, int] = "0",
+    ) -> None:
+        self.tmdb = str(tmdb)
+        self.media_type = media_type if isinstance(media_type, MediaEnum) else MediaEnum.map_enum(media_type)
+        self.season = str(season)
+        self.episode = str(episode)
+
+    @property
+    def gmid(self) -> str:
+        gmid = f"{self.media_type.gmid_key}.{self.tmdb}"
+        if self.media_type == MediaEnum.SERIES:
+            gmid += f".{self.season}.{self.episode}"
+        return gmid
+
 class ProviderHeaders:
     def __init__(
         self, 
@@ -59,7 +112,7 @@ class ProviderHeaders:
     ) -> None:
         self._origin = origin
         self._referrer = referrer
-        self._user_agent = user_agent
+        self._user_agent = user_agent or default_ua
         self._headers = {
             "Origin": self._origin,
             "Referrer": self._referrer,
@@ -154,7 +207,7 @@ class Stream:
         headers: ProviderHeaders,
         url: str,
         ext: str,
-        quality: Union[str, Quality], 
+        quality: Union[str, QualityEnum], 
         codec: Optional[str] = None, 
         bandwith: Optional[int] = None,
         audio_channels: Optional[int] = None,
@@ -164,7 +217,7 @@ class Stream:
         self.headers = headers
         self.url = url
         self.ext = ext
-        self.quality = quality if isinstance(quality, Quality) else Quality.map_quality(quality) 
+        self.quality = quality if isinstance(quality, QualityEnum) else QualityEnum.map_enum(quality) 
         self.codec = codec
         self.bandwith = bandwith
         self.audio_channels = audio_channels # TODO
