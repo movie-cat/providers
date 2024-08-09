@@ -10,7 +10,7 @@
 
     | Source        | Status        |
     | ------------- |:-------------:|
-    | Flixhq        | ❌            |
+    | Flixhq        | ✅            |
   
 - **Providers**
 
