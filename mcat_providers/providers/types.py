@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from enum import Enum
-from typing import Optional, List, Dict
+from typing import Optional, Union, List, Dict
 
 class Quality(Enum):
     P_144 = "144p"
@@ -173,7 +173,7 @@ class Stream:
     def as_dict(self) -> Dict:
         return {
             "provider": self.provider,
-            "headers": self.headers,
+            "headers": self.headers.headers,
             "url": self.url,
             "ext": self.ext,
             "quality": self.quality,
