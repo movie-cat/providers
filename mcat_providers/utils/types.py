@@ -8,7 +8,7 @@ from typing import Optional, Union, List, Dict
 from mcat_providers import log as logger
 
 # Enums
-class QualityEnum(Enum):
+class QualityEnum(str, Enum):
     P_144 = "144p"
     P_240 = "240p"
     P_360 = "360p"
@@ -51,7 +51,7 @@ class QualityEnum(Enum):
         logger.warn(f"Unknown quality: {quality}")
         return cls.UNKNOWN
 
-class MediaEnum(Enum):
+class MediaEnum(str, Enum):
     MOVIE = "Movie"
     SERIES = "Series"
     ANIME = "Anime"
@@ -264,7 +264,7 @@ class ProviderResponse:
         self.subtitles = subtitles
 
     @property
-    def as_dict(self) -> dict:
+    def as_dict(self) -> Dict:
         return {
             "provider": self.provider,
             "streams": [stream.as_dict for stream in self.streams],
@@ -273,3 +273,29 @@ class ProviderResponse:
 
     def __repr__(self) -> str:
         return f"ProviderResponse(provider='{self.provider}', streams={self.streams}, subtitles={self.subtitles})"
+
+class SourceResponse:
+    def __init__(
+            self,
+            source: str,
+            providers: List[Optional[ProviderResponse]]
+        ) -> None:
+        self.source = source
+        self.providers = providers
+
+    @property
+    def as_dict(self) -> Dict:
+        return {
+            "name": self.source,
+            "providers": [provider.as_dict for provider in self.providers if provider]
+        }
+
+    def __getitem__(self, item) -> Optional[ProviderResponse]:
+        result = list.__getitem__(self.providers, item)
+        try:
+            return result
+        except TypeError:
+            return result
+
+    def __repr__(self) -> str:
+        return f"SourceResponse(source='{self.source}', providers={self.providers})"
