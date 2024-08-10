@@ -6,7 +6,7 @@ from typing import Optional, Union, List, Tuple
 
 from mcat_providers.sources import BaseSource
 from mcat_providers.providers.rabbitstream import Rabbitstream
-from mcat_providers.utils.types import ProviderResponse, MediaType
+from mcat_providers.utils.types import ProviderResponse, SourceResponse, MediaType
 
 class FlixHq(BaseSource):
     name = "FlixHq"
@@ -54,7 +54,7 @@ class FlixHq(BaseSource):
             return name, None
         return name, data.get("link")
 
-    async def scrape_all(self, tmdb: str, media_type: str, season: str = "0", episode: str = "0") -> Optional[List[ProviderResponse]]:
+    async def scrape_all(self, tmdb: str, media_type: str, season: str = "0", episode: str = "0") -> Optional[SourceResponse]:
         data = await self.resolve_tmdb(
             MediaType(
                 tmdb=tmdb, 
@@ -100,4 +100,5 @@ class FlixHq(BaseSource):
             self.logger.error("No resolver tasks!")
             return None
 
-        return await asyncio.gather(*sub_tasks)
+        responses = await asyncio.gather(*sub_tasks)
+        return SourceResponse(source=self.__class__.__name__, providers=responses)
