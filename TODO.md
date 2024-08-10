@@ -1,4 +1,4 @@
 *In order or priority*
 
-- [ ] Package everything
+- [x] Package everything
 - [ ] Add tmdb API support 
