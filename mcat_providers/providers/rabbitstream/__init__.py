@@ -185,7 +185,7 @@ class Rabbitstream(BaseProvider):
         if not decrypted or "https://" not in decrypted:
             self.logger.error("Failed to decrypt AES data!")
             raise ValueError("Failed to decrypt AES data!")
-        subtitles = [Subtitle(**{"language": subtitle.get("label"), "url": subtitle.get("file"), "ext": "." + subtitle.get("label").rpartition(".")[2]}) for subtitle in sources_data.pop("tracks")]
+        subtitles = [Subtitle(**{"language": subtitle.get("label"), "url": subtitle.get("file"), "ext": "." + subtitle.get("file").rpartition(".")[2]}) for subtitle in sources_data.pop("tracks")]
         sources_data.update({"subtitles": subtitles})
         sources_data.update({"sources": json.loads(decrypted)})
         return sources_data
