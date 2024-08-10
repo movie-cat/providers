@@ -5,6 +5,8 @@ from enum import Enum
 from mcat_providers import default_ua
 from typing import Optional, Union, List, Dict
 
+from mcat_providers import log as logger
+
 # Enums
 class QualityEnum(Enum):
     P_144 = "144p"
@@ -30,25 +32,24 @@ class QualityEnum(Enum):
         quality = cls.process_quality_str(quality)
         if quality in ["7680x4320", "4320p", "8k"]:
             return cls.P_4320
-        elif quality in ["4096x2160", "2160p", "ultrahd", "uhd", "4k"]:
+        if quality in ["4096x2160", "2160p", "ultrahd", "uhd", "4k"]:
             return cls.P_2160
-        elif quality in ["2560x1440", "1440p", "quadhd", "wqhd", "qhd"]:
+        if quality in ["2560x1440", "1440p", "quadhd", "wqhd", "qhd"]:
             return cls.P_1440
-        elif quality in ["1920x1080", "1080p", "fullhd", "fhd"]:
+        if quality in ["1920x1080", "1080p", "fullhd", "fhd"]:
             return cls.P_1080
-        elif quality in ["1280x720", "720p", "hd"]:
+        if quality in ["1280x720", "720p", "hd"]:
             return cls.P_720
-        elif quality in ["854x480", "480p"]:
+        if quality in ["854x480", "480p"]:
             return cls.P_480
-        elif quality in ["640x360", "360p"]:
+        if quality in ["640x360", "360p"]:
             return cls.P_360
-        elif quality in ["426x240", "240p"]:
+        if quality in ["426x240", "240p"]:
             return cls.P_240
-        elif quality in ["144p"]:
+        if quality in ["144p"]:
             return cls.P_144
-        else:
-            print(f"Unknown quality: {quality}")
-            return cls.UNKNOWN
+        logger.warn(f"Unknown quality: {quality}")
+        return cls.UNKNOWN
 
 class MediaEnum(Enum):
     MOVIE = "Movie"
@@ -70,6 +71,7 @@ class MediaEnum(Enum):
             return cls.SERIES
         if any(keyword in meda_type for keyword in ["anime"]):
             return cls.ANIME
+        logger.warn(f"Unknown media type: {meda_type}")
         return cls.UNKNOWN
 
     @property
@@ -173,7 +175,7 @@ class ProviderHeaders:
             del self._headers[key]
 
     def __repr__(self) -> str:
-        return f"ProviderHeaders(origin='{self._origin}', referrer='{self._referrer}', user_agent='{self._user_agent}'"
+        return f"ProviderHeaders(origin='{self._origin}', referrer='{self._referrer}', user_agent='{self._user_agent}')"
 
 class Subtitle:
     def __init__(self, language: str, url: str, ext: str):

@@ -1,6 +1,6 @@
 from typing import Optional, Dict
 
-from mcat_providers import client, sync_client, default_ua
+from mcat_providers import client, sync_client, default_ua, log
 from mcat_providers.providers import BaseProvider
 from mcat_providers.utils.types import MediaType
 from mcat_providers.utils.decorators import async_lru_cache
@@ -12,6 +12,7 @@ class BaseSource:
     base: str
 
     # Defaults
+    logger = log
     client = client
     sync_client = sync_client
     default_headers: Dict = {"User-Agent": default_ua}

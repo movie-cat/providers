@@ -32,7 +32,7 @@ class FlixHq(BaseSource):
         headers={"X-Requested-With": "XMLHttpRequest", **self.default_headers}
         req = await self.client.get(f"{self.base}/ajax/episode/list/{flixhq_id}", headers=headers)
         if not req.is_success:
-            print("Could not retieve available sources!")
+            self.logger.error("Could not retieve available sources!")
             return None
 
         # Makes the assumption that titles and linkids are in order
@@ -46,11 +46,11 @@ class FlixHq(BaseSource):
         headers={"X-Requested-With": "XMLHttpRequest", **self.default_headers}
         req = await self.client.get(f"{self.base}/ajax/episode/sources/{provider_id}", headers=headers)
         if not req.is_success:
-            print(f"Could not retieve source: '{name}'")
+            self.logger.error(f"Could not retieve source: '{name}'")
             return name, None
         data = req.json()
         if not data:
-            print(f"Could not get data!")
+            self.logger.error(f"Could not get data!")
             return name, None
         return name, data.get("link")
 
@@ -66,7 +66,7 @@ class FlixHq(BaseSource):
 
         flixhq = data.get("ids", {}).get("flixhq")
         if not flixhq:
-            print("No valid flixhq id!")
+            self.logger.error("No valid flixhq id!")
             return None
 
         sources = await self.get_sources(flixhq)
@@ -97,7 +97,7 @@ class FlixHq(BaseSource):
             sub_tasks.append(resolver.resolve(file))
     
         if not sub_tasks:
-            print("No resolver tasks!")
+            self.logger.error("No resolver tasks!")
             return None
 
         return await asyncio.gather(*sub_tasks)

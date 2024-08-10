@@ -3,7 +3,7 @@ import hashlib
 from pathlib import Path
 from typing import Optional, Union, List, Dict
 
-from mcat_providers import client, sync_client, default_ua
+from mcat_providers import client, sync_client, default_ua, log
 from mcat_providers.utils.types import ProviderHeaders, Stream
 from mcat_providers.utils.exceptions import DisabledProviderError
 
@@ -13,6 +13,7 @@ class BaseProvider:
     base: str
 
     # Defaults
+    logger = log
     client = client
     sync_client = sync_client
     default_headers: Dict = {"User-Agent": default_ua}
