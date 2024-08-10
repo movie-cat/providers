@@ -2,35 +2,30 @@
 
 *Contains the logic for scraping the different sources used by movie-cat.*
 
+
+*I do not recommend using this in its current state.*
+
 ---
 
-### Status
+### Installation
+> Install from source
 
-- **Sources**
-
-    | Source        | Status        |
-    | ------------- |:-------------:|
-    | Flixhq        | ✅            |
-  
-- **Providers**
-
-    | Provider     | Status        |
-    | ------------- |:-------------:|
-    | Rabbitstream  | ✅            |
+    $ git clone https://github.com/movie-cat/providers.git mcat-providers
+    $ cd mcat-providers
+    $ pip install .
 
 ---
 
 ### Usage
-I do not recommend using this in its current state.
 
-$ pip install .
+> CLI
+    
+    $ mcat-providers --src "flixhq" --tmdb 278
+    $ mcat-providers --src "flixhq" --tmdb 278 > streams.json
 
-$ mcat-providers --src "flixhq" --tmdb 278
+***OR***
 
-$ mcat-providers --src "flixhq" --tmdb 278 > streams.json
-
-OR
-
+> Python Lib
 ```py
 import os
 import asyncio
@@ -55,7 +50,24 @@ def scrape_flix(loop):
 
 if __name__ == "__main__":
     from mcat_providers import rich_handle
-    rich_handle.setLevel("NOTSET")
+    rich_handle.setLevel("NOTSET") # Will log everything for debugging, suggest using 20 (INFO)
     loop = asyncio.get_event_loop()
     scrape_flix(loop)
 ```
+
+
+---
+
+### Status
+
+- **Sources**
+
+    | Source        | Status        |
+    | ------------- |:-------------:|
+    | Flixhq        | ✅            |
+  
+- **Providers**
+
+    | Provider     | Status        |
+    | ------------- |:-------------:|
+    | Rabbitstream  | ✅            |
