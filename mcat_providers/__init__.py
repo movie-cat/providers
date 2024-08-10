@@ -42,7 +42,7 @@ def handle_flixhq(tmdb: str, media_type: str, se: str, ep: str, **kwargs):
 @click.option("--media-type", default="movie")
 @click.option("--se", default="0")
 @click.option("--ep", default="0")
-@click.option("--log-level", default=50, show_default=True) # logging.CRITICAL default
+@click.option("--log-level", default=40, show_default=True) # logging.ERROR default
 def main(src: str, **kwargs):
     rich_handle.setLevel(kwargs.pop("log_level"))
 
