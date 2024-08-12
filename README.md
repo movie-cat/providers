@@ -5,6 +5,8 @@
 
 *I do not recommend using this in its current state.*
 
+Providers API - https://github.com/movie-cat/providers-api
+
 ---
 
 ### Installation
