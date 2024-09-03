@@ -1,11 +1,15 @@
+import os
 import json
 import httpx
 import click
+import base64
 import asyncio
 import logging
+from pathlib import Path
+from dotenv import load_dotenv
 from rich.logging import RichHandler
 
-fh = logging.FileHandler('debug.log')
+fh = logging.FileHandler("debug.log", mode="w")
 logging.basicConfig(
     level="NOTSET",
     format='%(asctime)s %(levelname)s | %(name)s | %(message)s',
@@ -17,6 +21,24 @@ rich_handle = RichHandler(rich_tracebacks=True)
 rich_handle.setLevel(logging.CRITICAL)
 log.addHandler(rich_handle)
 
+env_path = os.path.join(os.getcwd(), ".mcat")
+if not os.path.exists(env_path):
+    file_dir = Path(__file__).parent
+    fallback_path = os.path.join(file_dir, ".mcat")
+    if not os.path.exists(fallback_path):
+        tmdb_api_key = "undefined"
+        try:
+            temp_key = input("Input TMDB API Read Access Token: ").strip()
+            if temp_key and base64.b64decode(temp_key.split(".")[0] + "==") == b'{"alg":"HS256"}':
+                tmdb_api_key = temp_key
+        except Exception as e:
+            log.error(e)
+        with open(fallback_path, "w", encoding="utf-8") as f:
+            f.write(f"TMDB_API = \"{tmdb_api_key}\"")
+    else:
+        env_path = fallback_path
+
+load_dotenv(env_path)
 loop = asyncio.get_event_loop()
 default_timeout = httpx.Timeout(999)
 default_ua = "Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0"
