@@ -1,6 +1,7 @@
 *.ts
 *.js
 *.mjs
+.mcat
 embed-scripts/
 
 # Byte-compiled / optimized / DLL files
