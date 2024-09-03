@@ -55,6 +55,7 @@ class MediaEnum(str, Enum):
     MOVIE = "Movie"
     SERIES = "Series"
     ANIME = "Anime"
+    LIVE = "Live"
     UNKNOWN = "UNKNOWN"
 
     @staticmethod
@@ -63,15 +64,17 @@ class MediaEnum(str, Enum):
         return media_type.strip()
 
     @classmethod
-    def map_enum(cls, meda_type: str) -> MediaEnum:
-        meda_type = cls.process_media_type(meda_type)
-        if any(keyword in meda_type for keyword in ["movie"]):
+    def map_enum(cls, media_type: str) -> MediaEnum:
+        media_type = cls.process_media_type(media_type)
+        if any(keyword in media_type for keyword in ["movie"]):
             return cls.MOVIE
-        if any(keyword in meda_type for keyword in ["tv", "series"]):
+        if any(keyword in media_type for keyword in ["tv", "series"]):
             return cls.SERIES
-        if any(keyword in meda_type for keyword in ["anime"]):
+        if any(keyword in media_type for keyword in ["anime"]):
             return cls.ANIME
-        logger.warn(f"Unknown media type: {meda_type}")
+        if any(keyword in media_type for keyword in ["live", "stream"]):
+            return cls.LIVE
+        logger.warn(f"Unknown media type: {media_type}")
         return cls.UNKNOWN
 
     @property
