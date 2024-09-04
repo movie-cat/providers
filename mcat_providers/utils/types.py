@@ -89,18 +89,22 @@ class MediaEnum(str, Enum):
 class MediaType:
     def __init__(
         self,
-        tmdb: Union[str, int],
         media_type: Union[str, MediaEnum],
         season: Union[str, int] = "0",
         episode: Union[str, int] = "0",
+        source_id: Optional[Union[str, int]] = None,
+        tmdb: Optional[Union[str, int]] = None,
     ) -> None:
-        self.tmdb = str(tmdb)
+        assert tmdb or source_id, "Must pass source_id or tmdb to MediaType!"
+        self.tmdb = str(tmdb) if tmdb else tmdb
+        self.source_id = str(source_id) if source_id else source_id
         self.media_type = media_type if isinstance(media_type, MediaEnum) else MediaEnum.map_enum(media_type)
         self.season = str(season)
         self.episode = str(episode)
 
     @property
     def gmid(self) -> str:
+        assert self.tmdb, "Cannot get gmid without tmdb existing!"
         gmid = f"{self.media_type.gmid_key}.{self.tmdb}"
         if self.media_type == MediaEnum.SERIES:
             gmid += f".{self.season}.{self.episode}"
