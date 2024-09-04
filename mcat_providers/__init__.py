@@ -24,9 +24,11 @@ log.addHandler(rich_handle)
 env_path = os.path.join(os.getcwd(), ".mcat")
 if not os.path.exists(env_path):
     file_dir = Path(__file__).parent
-    fallback_path = os.path.join(file_dir, ".mcat")
+    fallback_path = Path(os.path.join(file_dir, ".mcat"))
     if not os.path.exists(fallback_path):
-        tmdb_api_key = "undefined"
+        # fallback_path.touch()
+        # TODO: REMOVE THIS VVV FOR TESTING ONLY
+        tmdb_api_key = ""
         try:
             temp_key = input("Input TMDB API Read Access Token: ").strip()
             if temp_key and base64.b64decode(temp_key.split(".")[0] + "==") == b'{"alg":"HS256"}':
@@ -34,9 +36,8 @@ if not os.path.exists(env_path):
         except Exception as e:
             log.error(e)
         with open(fallback_path, "w", encoding="utf-8") as f:
-            f.write(f"TMDB_API = \"{tmdb_api_key}\"")
-    else:
-        env_path = fallback_path
+            f.write(f"TMDB_API_KEY = \"{tmdb_api_key}\"")
+    env_path = fallback_path
 
 load_dotenv(env_path)
 loop = asyncio.get_event_loop()
