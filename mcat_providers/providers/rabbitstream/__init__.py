@@ -17,7 +17,6 @@ from mcat_providers.utils.types import ProviderHeaders, ProviderResponse, Subtit
 from mcat_providers.utils.decorators import async_lru_cache, async_lru_cache_parameterless
 
 class Rabbitstream(BaseProvider):
-    name = "Rabbitstream"
     base = "https://rabbitstream.net"
     default_headers = {
         "Referer": "https://flixhq.to/",
@@ -29,40 +28,41 @@ class Rabbitstream(BaseProvider):
         "url": "https://raw.githubusercontent.com/movie-cat/embed-scripts/main/rabbitstream/payload.js"
     }
 
+    filename = embedded_file["name"]
+    working_dir = BaseProvider.validate_working_dir(Path(__file__))
+    file_dir = working_dir.joinpath(filename)
+
+    # We dont want to randomly execute files from the internet
+    # So we calculate checksums before allowing the user to use anything
+    # If this breaks then that likely means the target file has updated.
+    # I will update the hash manually if I modify the file, so updating should fix the issue.
+    # If updating doesnt fix the issue then you can fix this manually by updating the file_hash in __meta__ to the new MD5 hash
+    # Only update the file hash if you are happy with the content of the file and have deemed it as safe
+    if not file_dir.exists():
+        payload_url = embedded_file["url"]
+        expected_hash = embedded_file["hash"]
+        BaseProvider.logger.info(f"Attempting to download most recent version of '{filename}'")
+        try:
+            req = httpx.get(payload_url)
+        except Exception as e:
+            BaseProvider.logger.error(e)
+            raise IntegrityError(f"Failed to retrieve '{filename}'")
+        md5 = BaseProvider.calculate_md5(req.text.encode(), "hexdigest")
+        BaseProvider.logger.info(f"Checksum = {md5}, Expected = {expected_hash}")
+        if md5 != expected_hash:
+            raise IntegrityError(f"Could not validate the checksum of '{filename}'...")
+        with open(file_dir, "w", encoding="utf-8") as f:
+            f.write(req.text)
+
+    with open(file_dir, "r", encoding="utf-8") as f:
+        payload = f.read()
+
+    if not payload:
+        raise IntegrityError(f"Could not find any content inside '{filename}' for the WASM bundle!")
+
+    instantiate_and_decrypt = pythonmonkey.eval(payload)
+
     def __init__(self, **kwargs) -> None:
-        filename = self.embedded_file["name"]
-        working_dir = self.validate_working_dir(kwargs.get("working_dir", Path(__file__)))
-        file_dir = working_dir.joinpath(filename)
-
-        # We dont want to randomly execute files from the internet
-        # So we calculate checksums before allowing the user to use anything
-        # If this breaks then that likely means the target file has updated.
-        # I will update the hash manually if I modify the file, so updating should fix the issue.
-        # If updating doesnt fix the issue then you can fix this manually by updating the file_hash in __meta__ to the new MD5 hash
-        # Only update the file hash if you are happy with the content of the file and have deemed it as safe
-        if not file_dir.exists():
-            payload_url = self.embedded_file["url"]
-            expected_hash = self.embedded_file["hash"]
-            self.logger.info(f"Attempting to download most recent version of '{filename}'")
-            try:
-                req = httpx.get(payload_url)
-            except Exception as e:
-                self.logger.error(e)
-                raise IntegrityError(f"Failed to retrieve '{filename}'")
-            md5 = self.calculate_md5(req.text.encode(), "hexdigest")
-            self.logger.info(f"Checksum = {md5}, Expected = {expected_hash}")
-            if md5 != expected_hash:
-                raise IntegrityError(f"Could not validate the checksum of '{filename}'...")
-            with open(file_dir, "w", encoding="utf-8") as f:
-                f.write(req.text)
-
-        with open(file_dir, "r", encoding="utf-8") as f:
-            PAYLOAD = f.read()
-
-        if not PAYLOAD:
-            raise IntegrityError(f"Could not find any content inside '{filename}' for the WASM bundle!")
-
-        self.instantiate_and_decrypt = pythonmonkey.eval(PAYLOAD)
         self.client_headers = kwargs.get("headers") or {}
         self.client_headers.update(self.default_headers)
     
