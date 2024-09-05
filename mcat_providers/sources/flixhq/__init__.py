@@ -25,11 +25,11 @@ class FlixHq(BaseSource):
         self.client_headers.update(self.default_headers)
         self.providers = {
             "upcloud": Rabbitstream(**kwargs),
-            "doodstream": None,
-            "vidcloud": None,
-            "voe": None,
+            "vidcloud": Rabbitstream(**kwargs),
             "upstream": None,
+            "doodstream": None,
             "mixdrop": None,
+            "voe": None,
         }
 
     @async_lru_cache(maxsize=128)
@@ -234,6 +234,7 @@ class FlixHq(BaseSource):
                 remove_provider(name)
         
         tasks = [self.get_file(name, provider_id) for name, provider_id in sources]
+        seen_providers: List = []
         sub_tasks: List = []
 
         for task in asyncio.as_completed(tasks):
@@ -241,6 +242,10 @@ class FlixHq(BaseSource):
             if not file:
                 continue
             resolver = self.providers.get(name, "unknown")
+            name = resolver.__class__.__name__
+            if name in seen_providers:
+                continue
+            seen_providers.append(name)
             if not resolver:
                 continue
             if resolver == "unknown":
