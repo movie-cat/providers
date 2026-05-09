@@ -298,11 +298,7 @@ class SourceResponse:
         }
 
     def __getitem__(self, item) -> Optional[ProviderResponse]:
-        result = list.__getitem__(self.providers, item)
-        try:
-            return result
-        except TypeError:
-            return result
+        return list.__getitem__(self.providers, item)
 
     def __repr__(self) -> str:
         return f"SourceResponse(source='{self.source}', providers={self.providers})"
